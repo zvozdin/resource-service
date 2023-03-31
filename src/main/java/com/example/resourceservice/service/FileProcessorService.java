@@ -1,6 +1,7 @@
 package com.example.resourceservice.service;
 
-import com.example.resourceservice.model.FileTrackingEntity;
+import com.example.resourceservice.model.ResourceModel;
+import com.example.resourceservice.repository.entity.FileTrackingEntity;
 import com.example.resourceservice.repository.FileTrackingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,14 @@ public class FileProcessorService {
         fileTrackingRepository.save(new FileTrackingEntity(file.getOriginalFilename(), trackingId));
 
         return trackingId;
+    }
+
+    public ResourceModel download(String id) {
+        return fileStorageService.getFile(id);
+    }
+
+    public ResourceModel download(String id, long rangeStart, long rangeEnd) {
+        return fileStorageService.getFile(id, rangeStart, rangeEnd);
     }
 
 }

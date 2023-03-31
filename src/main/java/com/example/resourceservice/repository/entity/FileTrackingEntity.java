@@ -1,4 +1,4 @@
-package com.example.resourceservice.model;
+package com.example.resourceservice.repository.entity;
 
 import lombok.Getter;
 import lombok.Setter;

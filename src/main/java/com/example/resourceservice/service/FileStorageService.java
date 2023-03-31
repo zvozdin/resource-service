@@ -3,9 +3,14 @@ package com.example.resourceservice.service;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import com.example.resourceservice.config.S3ClientConfig;
 import com.example.resourceservice.exception.FileStorageServiceException;
+import com.example.resourceservice.model.ResourceModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,6 +42,7 @@ public class FileStorageService {
             amazonS3Client.putObject(s3Config.getBucketName(), key, input, buildObjectMetadata(file));
             return key;
         } catch (IOException e) {
+            log.error("IO Exception happened during writing MultipartFile into to InputStream to put an object to S3");
             throw new FileStorageServiceException(e.getMessage());
         } catch (AmazonServiceException e) {
             String errorMessage = String.format(
@@ -51,12 +57,39 @@ public class FileStorageService {
         }
     }
 
+    public ResourceModel getFile(String id) {
+        return getResourceModel(new GetObjectRequest(s3Config.getBucketName(), id));
+    }
+
+    public ResourceModel getFile(String id, long rangeStart, long rangeEnd) {
+        return getResourceModel(
+                new GetObjectRequest(s3Config.getBucketName(), id)
+                        .withRange(rangeStart, rangeEnd));
+    }
+
+    // todo: remove resource -> s3.deleteObject("bucket", "key");
+
     private ObjectMetadata buildObjectMetadata(MultipartFile file) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(file.getSize());
         objectMetadata.setContentType(file.getContentType());
 
         return objectMetadata;
+    }
+
+    private ResourceModel getResourceModel(GetObjectRequest objectRequest) {
+        S3Object s3Object = amazonS3Client.getObject(objectRequest);
+        long instanceLength = s3Object.getObjectMetadata().getInstanceLength();
+        long contentLength = s3Object.getObjectMetadata().getContentLength();
+
+        try(S3ObjectInputStream objectContent = s3Object.getObjectContent()) {
+            byte[] content = IOUtils.toByteArray(objectContent);
+
+            return new ResourceModel(instanceLength, contentLength, content);
+        } catch (IOException e) {
+            log.error("IO Exception happened during writing s3Object to byte[] result array");
+            throw new FileStorageServiceException(e.getMessage());
+        }
     }
 
 }
