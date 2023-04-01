@@ -1,7 +1,9 @@
 package com.example.resourceservice.controller;
 
+import com.example.resourceservice.controller.entity.DeletedResourcesEntityResponse;
 import com.example.resourceservice.controller.entity.SavedResourceEntityResponse;
 import com.example.resourceservice.controller.entity.ValidFile;
+import com.example.resourceservice.controller.entity.ValidList;
 import com.example.resourceservice.model.ResourceModel;
 import com.example.resourceservice.service.FileProcessorService;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 @Validated
@@ -36,8 +40,8 @@ public class ResourceController {
 
     @GetMapping(value = "/{id}", produces = AUDIO_MPEG_MEDIA_TYPE)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<byte[]> storeResource(@RequestHeader(value = "Range", required = false) String range,
-                                                            @PathVariable String id) {
+    public ResponseEntity<byte[]> getResource(@RequestHeader(value = "Range", required = false) String range,
+                                              @PathVariable String id) {
         if (HttpRange.parseRanges(range).size() == SINGLE_RANGE) {
             String[] ranges = range.substring("bytes=".length()).split("-");
             long rangeStart = Long.parseLong(ranges[0]);
@@ -65,6 +69,12 @@ public class ResourceController {
     @ResponseStatus(HttpStatus.OK)
     public HttpEntity<SavedResourceEntityResponse> storeResource(@ValidFile @RequestParam("file") MultipartFile file) {
         return new HttpEntity<>(new SavedResourceEntityResponse(fileProcessorService.save(file)));
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.OK)
+    public HttpEntity<DeletedResourcesEntityResponse> deleteResource(@ValidList @RequestParam("id") List<String> ids) {
+        return new HttpEntity<>(new DeletedResourcesEntityResponse(fileProcessorService.delete(ids)));
     }
 
     private Consumer<HttpHeaders> httpHeadersConsumer(String contentLength) {

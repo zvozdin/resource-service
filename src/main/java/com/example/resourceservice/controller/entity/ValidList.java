@@ -11,13 +11,13 @@ import java.lang.annotation.Target;
 @Documented
 @Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = {FileValidator.class})
-public @interface ValidFile {
+@Constraint(validatedBy = {ListIdsValidator.class})
+public @interface ValidList {
 
     Class<? extends Payload> [] payload() default{};
 
     Class<?>[] groups() default {};
 
-    String message() default "Validation failed or request body is invalid MP3";
+    String message() default "Validation failed or only comma separated values with length less than 200 characters are allowed";
 
 }

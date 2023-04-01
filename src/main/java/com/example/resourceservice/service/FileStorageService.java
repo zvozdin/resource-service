@@ -1,6 +1,8 @@
 package com.example.resourceservice.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
@@ -17,7 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,17 +49,31 @@ public class FileStorageService {
         }
     }
 
-    public ResourceModel getFile(String id) {
+    public ResourceModel download(String id) {
         return getResourceModel(new GetObjectRequest(s3Config.getBucketName(), id));
     }
 
-    public ResourceModel getFile(String id, long rangeStart, long rangeEnd) {
+    public ResourceModel download(String id, long rangeStart, long rangeEnd) {
         return getResourceModel(
                 new GetObjectRequest(s3Config.getBucketName(), id)
                         .withRange(rangeStart, rangeEnd));
     }
 
-    // todo: remove resource -> s3.deleteObject("bucket", "key");
+    public List<String> delete(List<String> ids) {
+        List<DeleteObjectsRequest.KeyVersion> keys =
+                ids.stream()
+                        .map(DeleteObjectsRequest.KeyVersion::new)
+                        .collect(Collectors.toList());
+
+        DeleteObjectsResult deleteObjectsResult =
+                amazonS3Client.deleteObjects(
+                        new DeleteObjectsRequest(s3Config.getBucketName())
+                                .withKeys(keys));
+
+        return deleteObjectsResult.getDeletedObjects().stream()
+                .map(DeleteObjectsResult.DeletedObject::getKey)
+                .toList();
+    }
 
     private ObjectMetadata buildObjectMetadata(MultipartFile file) {
         ObjectMetadata objectMetadata = new ObjectMetadata();

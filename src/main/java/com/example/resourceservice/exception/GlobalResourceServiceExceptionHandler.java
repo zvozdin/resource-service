@@ -3,6 +3,7 @@ package com.example.resourceservice.exception;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.MultiObjectDeleteException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
@@ -19,7 +21,12 @@ public class GlobalResourceServiceExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException e) {
-        return ResponseEntity.badRequest().body("Validation failed or request body is invalid MP3");
+        String message =
+                e.getConstraintViolations().stream()
+                        .map(ConstraintViolation::getMessage)
+                        .findFirst().orElse("");
+
+        return ResponseEntity.badRequest().body(message);
     }
 
     @ExceptionHandler(FileStorageServiceException.class)
@@ -53,6 +60,17 @@ public class GlobalResourceServiceExceptionHandler {
         log.error("Amazon S3 couldn't be contacted for a response or the client couldn't parse the response from Amazon S3");
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
+
+    @ExceptionHandler(MultiObjectDeleteException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<String> handleMultiObjectDeleteException(MultiObjectDeleteException e) {
+        log.error("Partial or total failure of the multi-object delete");
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(String.format("ErrorCode %s, with errors list %s. Successfully deleted objects: %s",
+                        e.getErrorCode(), e.getErrors(), e.getDeletedObjects()));
     }
 
 }

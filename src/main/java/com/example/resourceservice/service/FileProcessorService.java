@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class FileProcessorService {
@@ -23,11 +25,15 @@ public class FileProcessorService {
     }
 
     public ResourceModel download(String id) {
-        return fileStorageService.getFile(id);
+        return fileStorageService.download(id);
     }
 
     public ResourceModel download(String id, long rangeStart, long rangeEnd) {
-        return fileStorageService.getFile(id, rangeStart, rangeEnd);
+        return fileStorageService.download(id, rangeStart, rangeEnd);
+    }
+
+    public List<String> delete(List<String> ids) {
+        return fileStorageService.delete(ids);
     }
 
 }
