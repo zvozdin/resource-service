@@ -1,7 +1,5 @@
 package com.example.resourceservice.service;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -43,16 +41,6 @@ public class FileStorageService {
             return key;
         } catch (IOException e) {
             log.error("IO Exception happened during writing MultipartFile into to InputStream to put an object to S3");
-            throw new FileStorageServiceException(e.getMessage());
-        } catch (AmazonServiceException e) {
-            String errorMessage = String.format(
-                    "The call was transmitted successfully, but Amazon S3 couldn't process. AWS ErrorCode: %s, HttpCode: %d",
-                    e.getErrorCode(), e.getStatusCode());
-            log.error(errorMessage);
-            throw new FileStorageServiceException(e.getErrorMessage());
-        } catch (SdkClientException e) {
-            String errorMessage = "Amazon S3 couldn't be contacted for a response or the client couldn't parse the response from Amazon S3";
-            log.error(errorMessage);
             throw new FileStorageServiceException(e.getMessage());
         }
     }
