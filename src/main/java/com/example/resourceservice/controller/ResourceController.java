@@ -7,6 +7,7 @@ import com.example.resourceservice.controller.entity.ValidList;
 import com.example.resourceservice.model.ResourceModel;
 import com.example.resourceservice.service.FileProcessorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
@@ -37,6 +38,7 @@ public class ResourceController {
     public static final int SINGLE_RANGE = 1;
 
     private final FileProcessorService fileProcessorService;
+    private final StreamBridge streamBridge;
 
     @GetMapping(value = "/{id}", produces = AUDIO_MPEG_MEDIA_TYPE)
     @ResponseStatus(HttpStatus.OK)
@@ -68,7 +70,11 @@ public class ResourceController {
     @PostMapping(produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     public HttpEntity<SavedResourceEntityResponse> storeResource(@ValidFile @RequestParam("file") MultipartFile file) {
-        return new HttpEntity<>(new SavedResourceEntityResponse(fileProcessorService.save(file)));
+        String id = fileProcessorService.save(file);
+
+        streamBridge.send("producer-out-0", id);
+
+        return new HttpEntity<>(new SavedResourceEntityResponse(id));
     }
 
     @DeleteMapping
