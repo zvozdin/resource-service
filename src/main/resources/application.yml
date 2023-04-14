@@ -29,6 +29,11 @@ spring:
     port: 5672
     username: guest
     password: guest
+    template:
+      retry:
+        enabled: true
+        initial-interval: 5000ms
+        max-attempts: 2
 
 aws:
   s3:
