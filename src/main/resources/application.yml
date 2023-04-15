@@ -18,6 +18,22 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
+  cloud:
+    stream:
+      bindings:
+        producer-out-0:
+          destination: resource-ids
+          group: resource-processor
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    template:
+      retry:
+        enabled: true
+        initial-interval: 5000ms
+        max-attempts: 2
 
 aws:
   s3:
@@ -27,6 +43,7 @@ aws:
 
 logging:
   level:
+    root: info
     com:
       amazonaws:
         internal:
