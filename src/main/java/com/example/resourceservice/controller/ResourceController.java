@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -67,7 +68,7 @@ public class ResourceController {
         }
     }
 
-    @PostMapping(produces = "application/json")
+    @PostMapping(produces = "application/json", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public HttpEntity<SavedResourceEntityResponse> storeResource(@ValidFile @RequestParam("file") MultipartFile file) {
         String id = fileProcessorService.save(file);

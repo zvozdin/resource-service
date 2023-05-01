@@ -51,3 +51,12 @@ logging:
           InstanceMetadataServiceResourceFetcher: error
         util:
           EC2MetadataUtils: error
+
+server:
+  tomcat:
+    max-swallow-size: 20MB
+    max-http-form-post-size: 20MB
+
+services:
+  url:
+    song-service: http://localhost:8081/api/v1/songs

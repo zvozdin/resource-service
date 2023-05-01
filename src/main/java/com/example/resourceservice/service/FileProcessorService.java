@@ -4,11 +4,13 @@ import com.example.resourceservice.model.ResourceModel;
 import com.example.resourceservice.repository.entity.FileTrackingEntity;
 import com.example.resourceservice.repository.FileTrackingRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class FileProcessorService {
@@ -18,6 +20,8 @@ public class FileProcessorService {
 
     public String save(MultipartFile file) {
         String trackingId = fileStorageService.upload(file);
+
+        log.info("file has been stored in S3 with key {}", trackingId);
 
         fileTrackingRepository.save(new FileTrackingEntity(file.getOriginalFilename(), trackingId));
 
