@@ -17,6 +17,7 @@
         <java.version>17</java.version>
         <cucumber.version>7.1.0</cucumber.version>
         <postgresql.version>42.5.0</postgresql.version>
+        <it.skip>false</it.skip>
     </properties>
 
     <dependencyManagement>
@@ -127,6 +128,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>net.masterthought</groupId>
+            <artifactId>cucumber-reporting</artifactId>
+            <version>5.7.5</version>
+        </dependency>
+        <dependency>
             <groupId>io.zonky.test</groupId>
             <artifactId>embedded-database-spring-test</artifactId>
             <version>2.2.0</version>
@@ -139,7 +145,8 @@
             <scope>test</scope>
         </dependency>
 
-<!--        https://docs.spring.io/spring-boot/docs/2.4.0/reference/htmlsingle/#boot-features-testing:~:text=for%20more%20details.-,4.26.%20Testing,-Spring%20Boot%20provides-->
+        <!--https://geeksqa.com/maven-tests-does-not-run-cucumber-scenarios-with-spring-boot-2-2-and-junit-5-->
+        <!--https://docs.spring.io/spring-boot/docs/2.4.0/reference/htmlsingle/#boot-features-testing:~:text=for%20more%20details.-,4.26.%20Testing,-Spring%20Boot%20provides-->
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
@@ -160,6 +167,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <layout>JAR</layout>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
@@ -167,7 +175,85 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${it.skip}</skip>
+                            <arguments>
+                                <argument>--server.port=${tomcat.http.port}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${it.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
+
+            <!--https://maven.apache.org/surefire/maven-failsafe-plugin/-->
+            <!--https://maven.apache.org/surefire/maven-failsafe-plugin/examples/inclusion-exclusion.html-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <skip>${it.skip}</skip>
+                    <!--You can now retrieve the test.server.port system property in any of your integration test to create a proper URL to the server.-->
+                    <systemPropertyVariables>
+                        <test.server.port>${tomcat.http.port}</test.server.port>
+                        <cucumber.options>--plugin pretty</cucumber.options>
+                    </systemPropertyVariables>
+                    <includes>
+                        <include>**/CucumberE2EIT.java</include>
+                        <include>**/*IT.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--https://docs.spring.io/spring-boot/docs/2.1.1.RELEASE/maven-plugin/examples/it-random-port.html-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>reserve-tomcat-port</id>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <portNames>
+                                <portName>tomcat.http.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 

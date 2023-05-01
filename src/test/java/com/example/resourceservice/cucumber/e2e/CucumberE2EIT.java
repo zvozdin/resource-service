@@ -10,6 +10,6 @@ import org.junit.runner.RunWith;
         features = "src/test/resources/features/e2e",
         plugin = {"junit:target/failsafe-reports/cucumber-report-IT.xml", "pretty"}
 )
-public class CucumberE2E {
+public class CucumberE2EIT {
 
 }

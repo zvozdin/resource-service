@@ -43,6 +43,7 @@ public class HttpClient {
     void executePostFileToResourceService(String path) {
         String url = String.format("%s:%s%s", SERVER_URL, port, path);
 
+        // todo: add logs with resource id to track and make evidences
         RequestEntity<MultiValueMap<String, Object>> requestEntity = buildMultipartRequest(url);
 
         response = restTemplate.exchange(requestEntity, SavedResourceEntityResponse.class);
