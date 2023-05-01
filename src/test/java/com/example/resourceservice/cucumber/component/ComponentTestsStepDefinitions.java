@@ -1,4 +1,4 @@
-package com.example.resourceservice.cucumber;
+package com.example.resourceservice.cucumber.component;
 
 import com.example.resourceservice.controller.ResourceController;
 import com.example.resourceservice.model.ResourceModel;
@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-public class StepDefinitions {
+public class ComponentTestsStepDefinitions {
 
     @Autowired
     private ResourceController resourceController;
