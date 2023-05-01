@@ -79,19 +79,7 @@ class FileStorageServiceIT {
                                             localstackS3Container.getAccessKey(), localstackS3Container.getSecretKey())))
                     .build();
         }
-    }
 
-    // todo: db
-//    @Container
-//    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:12")
-//            .withPassword("inmemory")
-//            .withUsername("inmemory");
-//
-//    @DynamicPropertySource
-//    static void postgresqlProperties(DynamicPropertyRegistry registry) {
-//        registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
-//        registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
-//        registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
-//    }
+    }
 
 }
