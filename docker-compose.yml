@@ -1,84 +1,33 @@
 version: "3.0"
 
 services:
-#  localstack:
-#    container_name: localstack_microservices_course
-#    image: localstack/localstack:latest
-#    environment:
-#      - SERVICES=lambda,s3
-#      - AWS_DEFAULT_REGION=us-east-1
-#      - DOCKER_HOST=unix:///var/run/docker.sock
-#      - EDGE_PORT=4566
-#    ports:
-#      - '4566:4566'
-#    volumes:
-#      - "${TEMPDIR:-/tmp/localstack}:/tmp/localstack"
-#      - "/var/run/docker.sock:/var/run/docker.sock"
-#
-#  postgres:
-#    container_name: postgres_microservices_course
-#    image: postgres
-#    environment:
-#      POSTGRES_USER: ${POSTGRES_USER:-admin}
-#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
-#      PGDATA: /data/postgres
-#    volumes:
-#      - postgres:/data/postgres
-#    ports:
-#      - "5432:5432"
-#    networks:
-#      - postgres
-#    restart: unless-stopped
-#
-#  pgadmin:
-#    container_name: pgadmin_container
-#    image: dpage/pgadmin4
-#    environment:
-#      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-#      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-#      PGADMIN_CONFIG_SERVER_MODE: 'False'
-#    volumes:
-#      - pgadmin:/var/lib/pgadmin
-#    ports:
-#      - "${PGADMIN_PORT:-5050}:80"
-#    networks:
-#      - postgres
-#    restart: unless-stopped
-#
-#  rabbitmq:
-#    container_name: rabbit_microservices_course
-#    image: rabbitmq:management
-#    ports:
-#      - "5672:5672"
-#      - "15672:15672"
-
-  pact-broker:
-    container_name: pact-broker_container_microservices_course
-    image: dius/pact-broker
-    ports:
-      - "5000:80"
+  localstack:
+    container_name: localstack_microservices_course
+    image: localstack/localstack:latest
     environment:
-#      command:
-#      PACT_BROKER_BASIC_AUTH_USERNAME: pactbroker
-#      PACT_BROKER_BASIC_AUTH_PASSWORD: pactbroker
-#      PACT_BROKER_PORT: '9292'
-      PACT_BROKER_DATABASE_ADAPTER: postgres
-      PACT_BROKER_DATABASE_USERNAME: admin
-      PACT_BROKER_DATABASE_PASSWORD: admin
-      PACT_BROKER_DATABASE_HOST: postgres
-#      PACT_BROKER_DATABASE_PORT: 5432
-      PACT_BROKER_DATABASE_NAME: pact-broker
-#      PACT_BROKER_DATABASE_URL: ${PACT_BROKER_DATABASE_ADAPTER:-postgres}://${PACT_BROKER_DATABASE_USERNAME:-admin}:${PACT_BROKER_DATABASE_PASSWORD:-admin}@${PACT_BROKER_DATABASE_HOST:-localhost}:${PACT_BROKER_DATABASE_PORT:-5432}/${PACT_BROKER_DATABASE_NAME:-pact-broker}
-#      PACT_BROKER_DATABASE_URL: postgres://admin:admin@localhost:5432/pact-broker
-      PACT_BROKER_LOG_LEVEL: DEBUG
-      PACT_BROKER_SQL_LOG_LEVEL: DEBUG
-      PACT_BROKER_DATABASE_CONNECT_MAX_RETRIES: 10
-    networks:
-      - postgres
-networks:
-  postgres:
-    driver: bridge
+      - SERVICES=lambda,s3
+      - AWS_DEFAULT_REGION=us-east-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - EDGE_PORT=4566
+    ports:
+      - '4566:4566'
+    volumes:
+      - "${TEMPDIR:-/tmp/localstack}:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
 
-volumes:
+  rabbitmq:
+    container_name: rabbit_microservices_course
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   postgres:
-  pgadmin:
+    container_name: postgres_resource_service_microservices_course
+    image: postgres:11
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: resource
+    ports:
+      - '5432:5432'
