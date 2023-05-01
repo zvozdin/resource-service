@@ -3,6 +3,7 @@ package com.example.resourceservice.cucumber.e2e;
 import com.example.resourceservice.controller.entity.SavedResourceEntityResponse;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import static io.cucumber.spring.CucumberTestContext.SCOPE_CUCUMBER_GLUE;
 
+@Slf4j
 @Component
 @Scope(SCOPE_CUCUMBER_GLUE)
 public class HttpClient {
@@ -43,7 +45,6 @@ public class HttpClient {
     void executePostFileToResourceService(String path) {
         String url = String.format("%s:%s%s", SERVER_URL, port, path);
 
-        // todo: add logs with resource id to track and make evidences
         RequestEntity<MultiValueMap<String, Object>> requestEntity = buildMultipartRequest(url);
 
         response = restTemplate.exchange(requestEntity, SavedResourceEntityResponse.class);

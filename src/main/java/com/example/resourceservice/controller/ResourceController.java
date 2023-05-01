@@ -7,6 +7,7 @@ import com.example.resourceservice.controller.entity.ValidList;
 import com.example.resourceservice.model.ResourceModel;
 import com.example.resourceservice.service.FileProcessorService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.function.Consumer;
 
+@Slf4j
 @Validated
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/resources")
@@ -72,6 +74,8 @@ public class ResourceController {
     @ResponseStatus(HttpStatus.OK)
     public HttpEntity<SavedResourceEntityResponse> storeResource(@ValidFile @RequestParam("file") MultipartFile file) {
         String id = fileProcessorService.save(file);
+
+        log.info("Resource has been stored with id {}", id);
 
         streamBridge.send("producer-out-0", id);
 
