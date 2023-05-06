@@ -91,6 +91,8 @@ public class FileStorageService {
         try(S3ObjectInputStream objectContent = s3Object.getObjectContent()) {
             byte[] content = IOUtils.toByteArray(objectContent);
 
+            log.info("Resource with id {} has been retrieved from S3", objectRequest.getKey());
+
             return new ResourceModel(instanceLength, contentLength, content);
         } catch (IOException e) {
             log.error("IO Exception happened during writing s3Object to byte[] result array");
