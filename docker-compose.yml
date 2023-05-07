@@ -12,17 +12,14 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
-      # todo: move out all env vars
-      AWS_S3_ENDPOINTURL: 'http://localstack:4566'
-      AWS_S3_BACKETNAME: 'resources'
+      AWS_S3_ENDPOINTURL: ${AWS_S3_URL}
+      AWS_S3_BACKETNAME: ${AWS_S3_BUCKET}
     ports:
       - "8080:8080"
     depends_on:
       - localstack
       - rabbitmq
       - postgres
-
-# https://github:com/localstack/localstack/issues/5723#issuecomment-1075311321:
 
   localstack:
     container_name: localstack_microservices_course
@@ -51,6 +48,6 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: resource
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '5432:5432'
