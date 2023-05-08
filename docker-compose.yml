@@ -1,6 +1,26 @@
 version: "3.0"
 
 services:
+  resource-service-app:
+    image: resource-service-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: resource-service-app-microservices_course
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      AWS_S3_ENDPOINTURL: ${AWS_S3_URL}
+      AWS_S3_BACKETNAME: ${AWS_S3_BUCKET}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - localstack
+      - rabbitmq
+      - postgres
+
   localstack:
     container_name: localstack_microservices_course
     image: localstack/localstack:latest
@@ -26,8 +46,8 @@ services:
     container_name: postgres_resource_service_microservices_course
     image: postgres:11
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: resource
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '5432:5432'
