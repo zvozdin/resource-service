@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: resource-service
   servlet:
     multipart:
       max-file-size: 20MB
@@ -56,6 +58,12 @@ server:
   tomcat:
     max-swallow-size: 20MB
     max-http-form-post-size: 20MB
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
 
 services:
   url:
