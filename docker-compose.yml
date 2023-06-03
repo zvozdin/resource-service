@@ -8,18 +8,19 @@ services:
       dockerfile: Dockerfile
     container_name: resource-service-app-microservices_course
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
-      AWS_S3_ENDPOINTURL: ${AWS_S3_URL}
-      AWS_S3_BACKETNAME: ${AWS_S3_BUCKET}
-    ports:
+      SPRING_CLOUD_CONFIG_URI: ${SPRING_CLOUD_CONFIG_URI}
+    expose:
       - "8080:8080"
     depends_on:
       - localstack
       - rabbitmq
       - postgres
+    networks:
+      - service-configuration_default
+      - service-registry_default
+      - postgres
+      - localstack
+      - rabbitmq
 
   localstack:
     container_name: localstack_microservices_course
@@ -34,6 +35,8 @@ services:
     volumes:
       - "${TEMPDIR:-/tmp/localstack}:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - localstack
 
   rabbitmq:
     container_name: rabbit_microservices_course
@@ -41,6 +44,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - rabbitmq
 
   postgres:
     container_name: postgres_resource_service_microservices_course
@@ -51,3 +56,14 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '5432:5432'
+    networks:
+      - postgres
+
+networks:
+  postgres:
+  localstack:
+  rabbitmq:
+  service-registry_default:
+    external: true
+  service-configuration_default:
+    external: true
