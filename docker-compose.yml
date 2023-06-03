@@ -8,13 +8,7 @@ services:
       dockerfile: Dockerfile
     container_name: resource-service-app-microservices_course
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
-      AWS_S3_ENDPOINTURL: ${AWS_S3_URL}
-      AWS_S3_BACKETNAME: ${AWS_S3_BUCKET}
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      SPRING_CLOUD_CONFIG_URI: ${SPRING_CLOUD_CONFIG_URI}
     expose:
       - "8080:8080"
     depends_on:
@@ -22,6 +16,7 @@ services:
       - rabbitmq
       - postgres
     networks:
+      - service-configuration_default
       - service-registry_default
       - postgres
       - localstack
@@ -69,4 +64,6 @@ networks:
   localstack:
   rabbitmq:
   service-registry_default:
+    external: true
+  service-configuration_default:
     external: true
