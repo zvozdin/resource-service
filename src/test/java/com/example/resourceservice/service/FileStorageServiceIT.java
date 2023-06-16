@@ -54,7 +54,7 @@ class FileStorageServiceIT {
         MultipartFile file = new MockMultipartFile("test-file", "test-content".getBytes());
 
         // when
-        String expectedKey = fileStorageService.upload(file);
+        String expectedKey = fileStorageService.upload(file, "/files", "path");
 
         // then
         S3Object actualStoredObject = amazonS3Client.getObject(new GetObjectRequest(s3ClientConfig.getBucketName(), expectedKey));

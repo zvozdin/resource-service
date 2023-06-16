@@ -96,4 +96,12 @@ public class ResourceController {
         };
     }
 
+    @GetMapping("/migrate/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public HttpEntity<SavedResourceEntityResponse> changeResourceDestination(@PathVariable String id) {
+        fileProcessorService.changeStorage(id);
+
+        return new HttpEntity<>(new SavedResourceEntityResponse(id));
+    }
+
 }

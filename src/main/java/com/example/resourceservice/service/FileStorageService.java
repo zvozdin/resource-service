@@ -1,6 +1,7 @@
 package com.example.resourceservice.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -20,7 +21,6 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,8 +38,8 @@ public class FileStorageService {
         }
     }
 
-    public String upload(MultipartFile file) {
-        String key = UUID.randomUUID().toString();
+    public String upload(MultipartFile file, String id, String path) {
+        String key = buildDestinationKey(id, path);
         try(InputStream input = file.getInputStream()) {
             amazonS3Client.putObject(s3Config.getBucketName(), key, input, buildObjectMetadata(file));
             return key;
@@ -73,6 +73,21 @@ public class FileStorageService {
         return deleteObjectsResult.getDeletedObjects().stream()
                 .map(DeleteObjectsResult.DeletedObject::getKey)
                 .toList();
+    }
+
+    public String move(String trackingId, String from, String to) {
+        String bucketName = s3Config.getBucketName();
+        String destinationKey = buildDestinationKey(trackingId, to);
+
+        amazonS3Client.copyObject(new CopyObjectRequest(bucketName, from, bucketName, destinationKey));
+
+        delete(List.of(from));
+
+        return destinationKey;
+    }
+
+    private String buildDestinationKey(String trackingId, String to) {
+        return String.format("%s/%s", to, trackingId);
     }
 
     private ObjectMetadata buildObjectMetadata(MultipartFile file) {
