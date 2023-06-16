@@ -70,7 +70,6 @@ public class FileProcessorService {
                             String newDestination = fileStorageService.move(trackingId, file.getResourcePath(), path);
                             file.setResourcePath(newDestination);
                             file.setType(StorageType.PERMANENT);
-                            // todo: update in DB. by @Transactional needs to be updated. check it
                         },
                         () -> {
                             throw new IllegalArgumentException(String.format(NOT_FOUND_MESSAGE, trackingId));
