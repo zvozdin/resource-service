@@ -70,6 +70,42 @@ feign:
   client:
     config:
       default:
-        connectTimeout: 5000
-        readTimeout: 5000
+        connectTimeout: 2000
+        readTimeout: 2000
         loggerLevel: basic
+
+resilience4j:
+  circuitbreaker:
+    circuit-breaker-aspect-order: 1
+    instances:
+      storage-service-circuit-breaker:
+        register-health-indicator: true
+        minimum-number-of-calls: 2
+        failure-rate-threshold: 50
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 2m
+        permitted-number-of-calls-in-half-open-state: 1
+        sliding-window-size: 2
+        sliding-window-type: count_based
+  retry:
+    retry-aspect-order: 2
+    instances:
+      storage-service-retry:
+        max-attempts: 2
+        wait-duration: 5s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+    retries:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

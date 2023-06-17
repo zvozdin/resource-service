@@ -1,11 +1,9 @@
 package com.example.resourceservice.service;
 
-import com.example.resourceservice.client.GatewayClient;
 import com.example.resourceservice.client.entity.StorageType;
-import com.example.resourceservice.client.entity.StorageTypeResponse;
 import com.example.resourceservice.model.ResourceModel;
-import com.example.resourceservice.repository.entity.FileTrackingEntity;
 import com.example.resourceservice.repository.FileTrackingRepository;
+import com.example.resourceservice.repository.entity.FileTrackingEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,10 +22,10 @@ public class FileProcessorService {
 
     private final FileStorageService fileStorageService;
     private final FileTrackingRepository fileTrackingRepository;
-    private final GatewayClient gatewayClient;
+    private final StorageDestinationService storageDestinationService;
 
     public String save(MultipartFile file) {
-        String path = getStoragePathForType(StorageType.STAGING);
+        String path = storageDestinationService.getStoragePathForType(StorageType.STAGING);
 
         String trackingId = UUID.randomUUID().toString();
 
@@ -62,7 +60,7 @@ public class FileProcessorService {
 
     @Transactional
     public String changeStorage(String trackingId) {
-        String path = getStoragePathForType(StorageType.PERMANENT);
+        String path = storageDestinationService.getStoragePathForType(StorageType.PERMANENT);
 
         fileTrackingRepository.findByTrackingId(trackingId)
                 .ifPresentOrElse(
@@ -77,16 +75,6 @@ public class FileProcessorService {
                 );
 
         return trackingId;
-    }
-
-    // todo: add annotation @CircuitBreaker
-    private String getStoragePathForType(StorageType type) {
-        return gatewayClient.getStorageTypes().stream()
-                .filter(storage -> storage.storageType() == type)
-                .map(StorageTypeResponse::path)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        String.format("Path for %s not found. Couldn't store a file", type)));
     }
 
     private String getResourceKey(String id) {
