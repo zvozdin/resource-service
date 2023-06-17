@@ -9,7 +9,7 @@ services:
     container_name: resource-service-app-microservices_course
     environment:
       SPRING_CLOUD_CONFIG_URI: ${SPRING_CLOUD_CONFIG_URI}
-    expose:
+    ports:                           # to expose actuator
       - "8080:8080"
     depends_on:
       - localstack

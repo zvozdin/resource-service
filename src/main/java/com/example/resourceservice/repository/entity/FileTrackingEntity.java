@@ -1,10 +1,13 @@
 package com.example.resourceservice.repository.entity;
 
+import com.example.resourceservice.client.entity.StorageType;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,13 +29,22 @@ public class FileTrackingEntity {
     @Column(name = "resource_tracking_id", unique = true)
     private String trackingId;
 
+    @Column(name = "resource_path")
+    private String resourcePath;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "storage_type")
+    private StorageType type;
+
     public FileTrackingEntity() {
 
     }
 
-    public FileTrackingEntity(String name, String trackingId) {
+    public FileTrackingEntity(String name, String trackingId, String resourcePath, StorageType type) {
         this.name = name;
         this.trackingId = trackingId;
+        this.resourcePath = resourcePath;
+        this.type = type;
     }
 
 }

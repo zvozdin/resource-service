@@ -73,4 +73,10 @@ public class GlobalResourceServiceExceptionHandler {
                         e.getErrorCode(), e.getErrors(), e.getDeletedObjects()));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
 }
