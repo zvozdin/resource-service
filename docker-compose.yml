@@ -21,6 +21,7 @@ services:
       - postgres
       - localstack
       - rabbitmq
+      - elasticsearch
 
   localstack:
     container_name: localstack_microservices_course
@@ -59,10 +60,50 @@ services:
     networks:
       - postgres
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.3.3
+    container_name: elasticsearch_microservices_course
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+    ports:
+      - '9200:9200'
+    networks:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.3.3
+    container_name: kibana_microservices_course
+    ports:
+      - '5601:5601'
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_HOSTS: '["http://elasticsearch:9200"]'
+    depends_on:
+      - elasticsearch
+    networks:
+      elasticsearch:
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.3.3
+    container_name: logstash_microservices_course
+    ports:
+      - '5000:5000/tcp'
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro      # Pipeline configuration
+    depends_on:
+      - elasticsearch
+    networks:
+      elasticsearch:
+
 networks:
   postgres:
   localstack:
   rabbitmq:
+  elasticsearch:
   service-registry_default:
     external: true
   service-configuration_default:

@@ -50,6 +50,7 @@ logging:
           InstanceMetadataServiceResourceFetcher: error
         util:
           EC2MetadataUtils: error
+  config: classpath:logback-spring-local.xml
 
 server:
   tomcat:
