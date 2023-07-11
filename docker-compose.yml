@@ -99,11 +99,44 @@ services:
     networks:
       elasticsearch:
 
+  keycloack:
+    image: quay.io/keycloak/keycloak:20.0.0
+    container_name: keycloack_microservices_course
+    command: start-dev
+    ports:
+      - '8890:8080'
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres_keycloack
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_DB_SCHEMA: public
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    depends_on:
+      - postgres_keycloack
+    networks:
+      - keycloack
+
+  postgres_keycloack:
+    container_name: postgres_keycloack_microservices_course
+    image: postgres:11
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+      POSTGRES_DB: keycloak
+    ports:
+      - '5435:5432'
+    networks:
+      - keycloack
+
 networks:
   postgres:
   localstack:
   rabbitmq:
   elasticsearch:
+  keycloack:
   service-registry_default:
     external: true
   service-configuration_default:
