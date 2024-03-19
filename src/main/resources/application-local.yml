@@ -4,7 +4,7 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
   datasource:
-    url: jdbc:postgresql://${DB_URL:localhost}/${DB_NAME:resource}
+    url: jdbc:postgresql://localhost:5432/resource
     username: admin
     password: admin
   jpa:
@@ -33,14 +33,3 @@ logging:
           InstanceMetadataServiceResourceFetcher: error
         util:
           EC2MetadataUtils: error
-
-management:
-  endpoint:
-    health:
-      show-details: always
-      probes:
-        enabled: true
-      # https://stackoverflow.com/questions/75194816/my-spring-custom-healthindicator-not-called-when-using-actuator-liveness-and-rea
-      group:
-        readiness.include: localstackS3,resourceDB
-        liveness.include: localstackS3,resourceDB

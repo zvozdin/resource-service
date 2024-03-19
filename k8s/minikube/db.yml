@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: resource-postgres
+  namespace: k8s-program
+spec:
+  selector:
+    app: resource-postgres
+  ports:
+    - port: 5433
+      targetPort: 5432
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: resource-postgres
+  namespace: k8s-program
+  labels:
+    app: resource-postgres
+spec:
+  serviceName: resource-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resource-postgres
+  template:
+    metadata:
+      name: resource-postgres
+      labels:
+        app: resource-postgres
+    spec:
+      containers:
+        - name: resource-postgres
+          image: postgres
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: resource-postgres
+          envFrom:
+            - secretRef:
+                name: resource-secret
+          startupProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - -e
+                - exec pg_isready -U "admin" -d "resource" -h 127.0.0.1 -p 5432
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - -e
+                - exec pg_isready -U "admin" -d "resource" -h 127.0.0.1 -p 5432
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - exec pg_isready -U "admin" -d "resource" -h 127.0.0.1 -p 5432
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: resource-postgres
+          persistentVolumeClaim:
+            claimName: postgres-resource-volume-claim
+      restartPolicy: Always
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-resource-volume
+  namespace: k8s-program
+  labels:
+    type: local
+    app: resource-postgres
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: /mnt/data
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-resource-volume-claim
+  namespace: k8s-program
+  labels:
+    app: resource-postgres
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
