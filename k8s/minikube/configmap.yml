@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: resource-config
+  namespace: k8s-program
+data:
+  SERVICES: "s3"
+  AWS_DEFAULT_REGION: "us-east-1"
+  # todo try AWS_S3_ENDPOINTURL: "localstack-service"
+  AWS_S3_ENDPOINTURL: "http://localstack-service:4566"
+  DB_URL: "resource-postgres:5433"
+  01_init_db.sql: |
+    DO
+    $$
+        BEGIN
+            IF NOT EXISTS (SELECT FROM pg_database WHERE datname = 'resource') THEN
+                CREATE DATABASE resource;
+            END IF;
+        END
+    $$;
+
+  02_create_table_resource_tracking.sql: |
+    CREATE TABLE resource_tracking (
+    id SERIAL PRIMARY KEY,
+    resource_name VARCHAR(255),
+    resource_tracking_id VARCHAR(255) UNIQUE
+    );

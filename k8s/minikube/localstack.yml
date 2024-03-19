@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: localstack-service
+  namespace: k8s-program
+  labels:
+    app: localstack
+spec:
+  selector:
+    app: localstack
+  ports:
+    - name: edge
+      port: 4566
+      protocol: TCP
+      targetPort: edge
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: localstack-statefulset
+  namespace: k8s-program
+  labels:
+    app: localstack
+spec:
+  serviceName: localstack-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack
+  template:
+    metadata:
+      name: localstack-pod
+      labels:
+        app: localstack
+    spec:
+      containers:
+        - name: localstack
+          image: localstack/localstack@sha256:0ce3f823caa057bfbafde86f86da6eec277749385b3e78f7a2ee27fd711cc0e5
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SERVICES
+              valueFrom:
+                configMapKeyRef:
+                  name: resource-config
+                  key: SERVICES
+            - name: AWS_DEFAULT_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: resource-config
+                  key: AWS_DEFAULT_REGION
+          startupProbe:
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+            periodSeconds: 10
+            httpGet:
+              path: _localstack/health
+              port: edge
+              scheme: HTTP
+          livenessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
+            httpGet:
+              path: _localstack/health
+              port: edge
+              scheme: HTTP
+          readinessProbe:
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
+            httpGet:
+              path: _localstack/health
+              port: edge
+              scheme: HTTP
+          ports:
+            - containerPort: 4566
+              name: edge
+              protocol: TCP
+      restartPolicy: Always
