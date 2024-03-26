@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: localstack-service
-  namespace: k8s-program
+  namespace: {{ .Values.namespace }}
   labels:
     app: localstack
 spec:
@@ -20,12 +20,12 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: localstack-statefulset
-  namespace: k8s-program
+  namespace: {{ .Values.namespace }}
   labels:
     app: localstack
 spec:
   serviceName: localstack-service
-  replicas: 1
+  replicas: {{ .Values.deployment.localstack.replica }}
   selector:
     matchLabels:
       app: localstack
@@ -37,8 +37,8 @@ spec:
     spec:
       containers:
         - name: localstack
-          image: localstack/localstack@sha256:0ce3f823caa057bfbafde86f86da6eec277749385b3e78f7a2ee27fd711cc0e5
-          imagePullPolicy: IfNotPresent
+          image: {{ .Values.deployment.localstack.image }}
+          imagePullPolicy: {{ .Values.deployment.pullPolicy }}
           env:
             - name: SERVICES
               valueFrom:
