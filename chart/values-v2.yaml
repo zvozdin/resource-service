@@ -1,0 +1,12 @@
+namespace: k8s-program-v2
+
+deployment:
+  app:
+    replica: 3
+  db:
+    replica: 1
+  localstack:
+    replica: 1
+
+service:
+  nodePort: 30003

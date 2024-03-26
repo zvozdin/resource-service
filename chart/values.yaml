@@ -1,0 +1,27 @@
+namespace: k8s-program
+
+deployment:
+  pullPolicy: IfNotPresent
+  app:
+    replica: 2
+    image: resource:module2
+  db:
+    replica: 1
+    image: postgres
+  localstack:
+    replica: 1
+    image: localstack/localstack@sha256:0ce3f823caa057bfbafde86f86da6eec277749385b3e78f7a2ee27fd711cc0e5
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30002
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080

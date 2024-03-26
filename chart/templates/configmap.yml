@@ -2,7 +2,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: resource-config
-  namespace: k8s-program
+  namespace: {{ .Values.namespace }}
+  labels:
+    date: {{ include "mychart.currentDate" . }}
+    version: {{ include "mychart.version" . }}
 data:
   SERVICES: "s3"
   AWS_DEFAULT_REGION: "us-east-1"

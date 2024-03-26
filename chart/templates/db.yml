@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: resource-postgres
-  namespace: k8s-program
+  namespace: {{ .Values.namespace }}
 spec:
   selector:
     app: resource-postgres
@@ -17,12 +17,12 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: resource-postgres
-  namespace: k8s-program
+  namespace: {{ .Values.namespace }}
   labels:
     app: resource-postgres
 spec:
   serviceName: resource-postgres
-  replicas: 1
+  replicas: {{ .Values.deployment.db.replica }}
   selector:
     matchLabels:
       app: resource-postgres
@@ -34,8 +34,8 @@ spec:
     spec:
       containers:
         - name: resource-postgres
-          image: postgres
-          imagePullPolicy: IfNotPresent
+          image: {{ .Values.deployment.db.image }}
+          imagePullPolicy: {{ .Values.deployment.pullPolicy }}
           ports:
             - containerPort: 5432
           volumeMounts:
@@ -81,8 +81,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: postgres-resource-volume
-  namespace: k8s-program
+  name: postgres-resource-volume-{{ .Values.namespace }}
   labels:
     type: local
     app: resource-postgres
@@ -101,7 +100,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-resource-volume-claim
-  namespace: k8s-program
+  namespace: {{ .Values.namespace }}
   labels:
     app: resource-postgres
 spec:
